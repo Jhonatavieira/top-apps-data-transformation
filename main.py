@@ -1,8 +1,21 @@
+"""
+    This code analys the top apps through the category 
+    rate and reviews, after insert the date to the sqlite3 
+    table
+"""
+
+import sqlite3
 import pandas as pd
 
 
 def extract_file(file_path):
-    # Read the file into memory
+    """Just read the file and return the object
+    Arg:
+        file_path: (string)
+
+    return:
+        Data: DataFrame 
+    """
     data = pd.read_csv(file_path)
 
     # Now, print details about the file
@@ -23,8 +36,19 @@ def extract_file(file_path):
 
 
 def transform(apps, reviews, category, min_rating, min_reviews):
-    # Print statement for observability
+    """Clean and return the data transformed
+    ARGS:
+        apps: DataFrame
+        reviews: DataFrame
+        category: String
+        min_rating: int
+        min_reviews: float
 
+    return: 
+        Data: DataFrame
+    """
+
+    # Print statement for observability
     print(f"Transforming data to curate a dataset with all "
           f"{category} and their "
           f"corresponding reviews with a rating of at least {min_rating} and "
@@ -77,6 +101,40 @@ def transform(apps, reviews, category, min_rating, min_reviews):
     return top_apps
 
 
+def load(dataframe, database_name, table_name):
+    """Fuction to load in the sqlite3
+
+    Args:
+        dataframe: Dataframe
+        database_name: string
+        table_name: string
+
+    return:
+        There's no return
+    """
+
+    # Create a connection object
+    con = sqlite3.connect(database_name)
+
+    # Write the data to the specified table (table_name)
+    dataframe.to_sql(name=table_name, con=con,
+                     if_exists="replace", index=False)
+    print("Original DataFrame has been loaded to sqlite3\n")
+
+    # Read the data and return the result (it is to be used)
+    loaded_dataframe = pd.read_sql(sql=f"select * from {table_name}", con=con)
+    print("The loaded DataFrame has been read from sqlite for validation\n")
+
+    try:
+        assert dataframe.shape == loaded_dataframe.shape
+        print(f"Sucess! The data in the {table_name}"
+              "table has sucessfully been loaded and validated")
+
+    except AssertionError:
+        print("DataFrame shape is not consistent"
+              "before and after loaded. Take a closer!")
+
+
 if __name__ == '__main__':
     app_data = extract_file("apps_data.csv")
     reviews_data = extract_file("review_data.csv")
@@ -88,4 +146,11 @@ if __name__ == '__main__':
         min_rating=4.0,
         min_reviews=1000
     )
+
+    load(
+        dataframe=top_app_data,
+        database_name="market_research",
+        table_name="top_apps"
+    )
+
     print(top_app_data)
