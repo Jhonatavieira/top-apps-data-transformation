@@ -1,7 +1,7 @@
 """
-    This code analys the top apps through the category 
-    rate and reviews, after insert the date to the sqlite3 
-    table
+Project: Pipeline for ETL
+This code analyzes the top apps through the category rate and reviews, 
+after inserting the date into the sqlite3 table
 """
 
 import sqlite3
@@ -14,7 +14,7 @@ def extract_file(file_path):
         file_path: (string)
 
     return:
-        Data: DataFrame 
+        Data: DataFrame
     """
     data = pd.read_csv(file_path)
 
@@ -44,7 +44,7 @@ def transform(apps, reviews, category, min_rating, min_reviews):
         min_rating: int
         min_reviews: float
 
-    return: 
+    return:
         Data: DataFrame
     """
 
